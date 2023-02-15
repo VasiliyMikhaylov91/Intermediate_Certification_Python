@@ -72,7 +72,7 @@ class main_window:
         self.button_del_note = Button(master=self.button_frame_notes, text='Удалить заметку',
                                       command=lambda: self.__select_note(False))
         self.button_del_note.grid(row=0, column=2, padx=5, pady=5)
-        self.button_sort = Button(master=self.button_frame_notes, text='Сортировать заметки')
+        self.button_sort = Button(master=self.button_frame_notes, text='Сортировать заметки', command=self.__sort_notes)
         self.button_sort.grid(row=0, column=3, padx=5, pady=5)
         self.button_frame_global = Frame(master=self.root, height=3, width=400)
         self.button_frame_global.pack(anchor='center', padx=5, pady=3)
@@ -83,6 +83,11 @@ class main_window:
         self.button_ext = Button(master=self.button_frame_global, text='Выйти')
         self.button_ext.grid(row=1, column=2, padx=5, pady=5)
         self.root.mainloop()
+
+    def __sort_notes(self):
+        self.sort_window = Tk()
+
+        self.sort_window.mainloop()
 
     def __select_note(self, is_edit: bool = True):
         list_selection = self.notes_list.curselection()
