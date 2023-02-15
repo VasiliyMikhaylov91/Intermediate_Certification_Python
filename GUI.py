@@ -86,8 +86,30 @@ class main_window:
 
     def __sort_notes(self):
         self.sort_window = Tk()
-
+        self.sort_window.title('Поле сортировки')
+        self.sort_window.geometry('250x200')
+        self.sort_window.resizable(False, False)
+        self.sort_window.attributes('-topmost', True)
+        position = {'anchor': 'center', 'padx': 5, 'pady': 5}
+        var_sort = StringVar(value='id')
+        var_sort.set('id')
+        Label(master=self.sort_window, text='Нажмите на способ сортировки').pack(**position)
+        self.sort_id_button = Button(master=self.sort_window, text='По номеру', command=lambda: self.__sort_start('id'))
+        self.sort_id_button.pack(**position)
+        self.sort_time_button = Button(master=self.sort_window, text='По времени создания/изменения',
+                                       command=lambda: self.__sort_start('time_change'))
+        self.sort_time_button.pack(**position)
+        self.sort_title_button = Button(master=self.sort_window, text='По заголовку',
+                                        command=lambda: self.__sort_start('title'))
+        self.sort_title_button.pack(**position)
         self.sort_window.mainloop()
+
+    def __sort_start(self, sort_mode: str):
+        for item in self.initial.data:
+            item.sort_type = sort_mode
+        self.initial.data.sort()
+        self.__update()
+        self.sort_window.destroy()
 
     def __select_note(self, is_edit: bool = True):
         list_selection = self.notes_list.curselection()
@@ -98,8 +120,10 @@ class main_window:
                 self.__delete_note(list_selection[0])
 
     def __delete_note(self, number: int):
-        self.initial.data.pop(number)
-        self.notes_list.config(listvariable=Variable(value=self.initial.data))
+        if messagebox.askyesno('Удаление заметки',
+                               f'Вы уверены, что хотите удалить заметку "{self.initial.data[number].title}"?'):
+            self.initial.data.pop(number)
+            self.__update()
 
     def __change_note(self, is_new: bool, editable_note: note = None):
         self.note_window = Tk()
@@ -136,7 +160,7 @@ class main_window:
             #                          "title": title,
             #                          "text": text}
             self.initial.data.append(note(note_id, time.time(), time.ctime(), title, text))
-            self.notes_list.config(listvariable=Variable(value=self.initial.data))
+            self.__update()
             self.note_window.destroy()
         else:
             messagebox.showerror('Ошибка', 'Введите заголовок заметки')
@@ -145,5 +169,8 @@ class main_window:
         ed_note.time_change_stamp = time.time()
         ed_note.time_change = time.ctime()
         ed_note.text = self.note_text_field.get(0.0, END)
-        self.notes_list.config(listvariable=Variable(value=self.initial.data))
+        self.__update()
         self.note_window.destroy()
+
+    def __update(self):
+        self.notes_list.config(listvariable=Variable(value=self.initial.data))
