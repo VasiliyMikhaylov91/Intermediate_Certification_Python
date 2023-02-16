@@ -27,12 +27,12 @@ class initial_window:
     def get_path(self, is_open: bool):
         self.__exit_program()
         if is_open:
-            self.path = fd.askopenfilename(filetypes=(("JSON files", "*.json"), ("CSV files", "*.csv")),
+            self.path = fd.askopenfilename(filetypes=(("JSON files", "*.json"), ("All files", "*.*")),
                                            defaultextension='.json')
             stf = db(self.path)
             self.data = stf.extract()
         else:
-            self.path = fd.asksaveasfilename(filetypes=(("JSON files", "*.json"), ("CSV files", "*.csv")),
+            self.path = fd.asksaveasfilename(filetypes=(("JSON files", "*.json"), ("All files", "*.*")),
                                              defaultextension='.json')
             stf = db(self.path)
             stf.save(self.data)
@@ -44,12 +44,6 @@ class initial_window:
 class main_window:
     def __init__(self, initial: initial_window):
         self.initial = initial
-
-    # def __list_create(self):
-    #     new_list = []
-    #     for key in self.initial.data.keys():
-    #         new_list.append(f'{key}  {self.initial.data[key]["time_change"]}  {self.initial.data[key]["title"]}')
-    #     return Variable(value=new_list)
 
     def window(self):
         self.root = Tk()
@@ -76,13 +70,28 @@ class main_window:
         self.button_sort.grid(row=0, column=3, padx=5, pady=5)
         self.button_frame_global = Frame(master=self.root, height=3, width=400)
         self.button_frame_global.pack(anchor='center', padx=5, pady=3)
-        self.button_save = Button(master=self.button_frame_global, text='Сохранить')
+        self.button_save = Button(master=self.button_frame_global, text='Сохранить', command=self.__save)
         self.button_save.grid(row=1, column=0, padx=5, pady=5)
-        self.button_save_as = Button(master=self.button_frame_global, text='Сохранить как...')
+        self.button_save_as = Button(master=self.button_frame_global, text='Сохранить как...', command=self.__save_as)
         self.button_save_as.grid(row=1, column=1, padx=5, pady=5)
-        self.button_ext = Button(master=self.button_frame_global, text='Выйти')
+        self.button_ext = Button(master=self.button_frame_global, text='Выйти', command=self.__close)
         self.button_ext.grid(row=1, column=2, padx=5, pady=5)
         self.root.mainloop()
+
+    def __close(self):
+        if messagebox.askyesno('Выход из программы',
+                               'Все не сохраненные данные будут потеряны.\nУверены, что хотите выйти?'):
+            self.root.destroy()
+
+    def __save_as(self):
+        path = fd.asksaveasfilename(filetypes=(("JSON files", "*.json"), ("All files", "*.*")),
+                                    defaultextension='.json')
+        self.initial.path = path if path else self.initial.path
+        self.__save()
+
+    def __save(self):
+        saver = db(self.initial.path)
+        saver.save(self.initial.data)
 
     def __sort_notes(self):
         self.sort_window = Tk()
@@ -155,10 +164,6 @@ class main_window:
                 item.sort_type = 'id'
             note_id = 1 if not len(self.initial.data) else max(self.initial.data).id + 1
             text = self.note_text_field.get(0.0, END)
-            # self.initial.data[id] = {"time_change_stamp": time.time(),
-            #                          "time_change": time.ctime(),
-            #                          "title": title,
-            #                          "text": text}
             self.initial.data.append(note(note_id, time.time(), time.ctime(), title, text))
             self.__update()
             self.note_window.destroy()

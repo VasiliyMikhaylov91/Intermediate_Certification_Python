@@ -9,7 +9,7 @@ class db:
     def save(self, data: list):
         if self.path.endswith('.json'):
             rec_dict = dict()
-            if not len(data):
+            if len(data):
                 for item in data:
                     rec_dict[item.id] = {'time_change_stamp': item.time_change_stamp,
                                          'time_change': item.time_change,
@@ -22,10 +22,10 @@ class db:
         if self.path.endswith('.json'):
             with open(self.path, 'r', encoding='utf-8') as file:
                 data = json.load(file)
-                res = list
+                res = list()
                 for key in data.keys():
-                    res.append(note(key,
-                                    data[key]['time_change_stamp'],
+                    res.append(note(int(key),
+                                    int(data[key]['time_change_stamp']),
                                     data[key]['time_change'],
                                     data[key]['title'],
                                     data[key]['text']))

@@ -10,9 +10,6 @@ class note:
     def __str__(self):
         return f'{self.id}    {self.time_change}    {self.title}'
 
-    # def __repr__(self):
-    #     return f'{self.id};{self.time_change};{self.title}'
-
     def __gt__(self, other):
         match self.sort_type:
             case 'time_change':
