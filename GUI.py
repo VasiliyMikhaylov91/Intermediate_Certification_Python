@@ -32,10 +32,7 @@ class initial_window:
             stf = db(self.path)
             self.data = stf.extract()
         else:
-            self.path = fd.asksaveasfilename(filetypes=(("JSON files", "*.json"), ("All files", "*.*")),
-                                             defaultextension='.json')
-            stf = db(self.path)
-            stf.save(self.data)
+            self.path = ''
 
     def __exit_program(self):
         self.root.destroy()
@@ -87,11 +84,15 @@ class main_window:
         path = fd.asksaveasfilename(filetypes=(("JSON files", "*.json"), ("All files", "*.*")),
                                     defaultextension='.json')
         self.initial.path = path if path else self.initial.path
-        self.__save()
+        if self.initial.path:
+            self.__save()
 
     def __save(self):
-        saver = db(self.initial.path)
-        saver.save(self.initial.data)
+        if self.initial.path:
+            saver = db(self.initial.path)
+            saver.save(self.initial.data)
+        else:
+            self.__save_as()
 
     def __sort_notes(self):
         self.sort_window = Tk()
